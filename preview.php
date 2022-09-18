@@ -1,5 +1,5 @@
 <?php
-	//Strat Session
+	//Start Session
 	session_start();
 	
 	//create database connection
