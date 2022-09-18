@@ -1,4 +1,5 @@
 <?php
+	//Strat Session
 	session_start();
 	
 	//create database connection
