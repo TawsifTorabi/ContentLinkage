@@ -1,23 +1,9 @@
 <?php
-	session_start();
-	
 	//create database connection
-	include("connect_db.php");
-	
-	//blank var
-	$getsessionID = '';
-	
-	//call session data
-	if(isset($_COOKIE['sessionid'])){
-		//get session id from browser and update variable
-		$getsessionID = $_COOKIE['sessionid'];
-	}
-	//set the validity mode for session data
-	$validity = "valid";	
-	//verify session id
-	if(mysqli_num_rows(mysqli_query($con,"select * from sessions where session_id='$getsessionID' AND validity='$validity'"))> 0){
-
+	require("controller/logged_in_check.php");
+	include("controller/connect_db.php");
 ?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -28,17 +14,7 @@
 		<ul>
 			<li style='background: linear-gradient(to left,#2aca9d, #21884e);'>
 				<a href="javascript:void(0);">
-				<?php
-					$userid = $_COOKIE['userid'];
-					if ($conn->query("SELECT username FROM users WHERE id='$userid'")->num_rows > 0) {
-						// output data of each row
-						if($row = $conn->query("SELECT username FROM users WHERE id='$userid'")->fetch_assoc()) {
-							echo "<span>Hello! <strong>".$row['username']."</strong></span><br>";
-						}
-					} else {
-						echo "<b>Something Went Wrong!</b>";
-					}
-				?>
+					<?php include('views/username_header.php'); ?>
 				</a>
 			</li>
 			<li class="dropdown">
@@ -52,10 +28,7 @@
 			<li class="dropdown">
 				<a href="javascript:void(0)" class="dropbtn">Manager</a>
 					<div class="dropdown-content">
-					  <a href="#">My Uploads</a>
-					  <a href="#">My Account</a>
-					  <a href="#">Settings</a>
-					  <a href="#">Subscription</a>
+					  <a href="myuploads.php">My Uploads</a>
 					</div>
 			</li>
 			<li style="float:right"><a class="active" href="logout.php">Logout</a></li>
@@ -69,5 +42,3 @@
 		</div>
     </body>
 </html>
-
-<?php 	}	else { echo "<script>window.open('login.php','_self')</script>"; } ?>
