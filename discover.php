@@ -1,23 +1,9 @@
 <?php
-	session_start();
-	
 	//create database connection
-	include("connect_db.php");
-	
-	//blank var
-	$getsessionID = '';
-	
-	//call session data
-	if(isset($_COOKIE['sessionid'])){
-		//get session id from browser and update variable
-		$getsessionID = $_COOKIE['sessionid'];
-	}
-	//set the validity mode for session data
-	$validity = "valid";	
-	//verify session id
-	if(mysqli_num_rows(mysqli_query($con,"select * from sessions where session_id='$getsessionID' AND validity='$validity'"))> 0){
-
+	require("controller/logged_in_check.php");
+	include("controller/connect_db.php");
 ?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -27,20 +13,11 @@
 
     <body>
 		<script src="js/aurna-lightbox.js"></script>
+		<script src="js/discover.js"></script>
 		<ul>
 			<li style='background: linear-gradient(to left,#2aca9d, #21884e);'>
 				<a href="javascript:void(0);">
-				<?php
-					$userid = $_COOKIE['userid'];
-					if ($conn->query("SELECT username FROM users WHERE id='$userid'")->num_rows > 0) {
-						// output data of each row
-						if($row = $conn->query("SELECT username FROM users WHERE id='$userid'")->fetch_assoc()) {
-							echo "<span>Hello! <strong>".$row['username']."</strong></span><br>";
-						}
-					} else {
-						echo "<b>Something Went Wrong!</b>";
-					}
-				?>
+				<?php include('views/username_header.php'); ?>
 				</a>
 			</li>
 			<li><a href="index.php">Home</a></li>
@@ -54,10 +31,7 @@
 			<li class="dropdown">
 			<a href="javascript:void(0)" class="dropbtn">Manager</a>
 			<div class="dropdown-content">
-			  <a href="#">My Uploads</a>
-			  <a href="#">My Account</a>
-			  <a href="#">Settings</a>
-			  <a href="#">Subscription</a>
+			  <a href="myuploads.php">My Uploads</a>
 			</div>
 			</li>
 			<li style="float:right"><a class="active" href="logout.php">Logout</a></li>
@@ -66,8 +40,14 @@
 		<div class="maincont">
 			<h1 style="font-size: 50px;">Discover The World of Contents!</h1>
 			<h3>Find your videos and pdf books!</h3>
-
-			<table>
+			</br>
+			
+			
+			<input type="text" id="queryInput" onkeypress="return fireentersearch(event)" placeholder="Search Here..."/>
+			<button onclick="searchAjax()" id="queryGo"><svg xmlns="http://www.w3.org/2000/svg" style="fill:white;" width="16" height="16" viewBox="0 0 24 24"><path d="M23.111 20.058l-4.977-4.977c.965-1.52 1.523-3.322 1.523-5.251 0-5.42-4.409-9.83-9.829-9.83-5.42 0-9.828 4.41-9.828 9.83s4.408 9.83 9.829 9.83c1.834 0 3.552-.505 5.022-1.383l5.021 5.021c2.144 2.141 5.384-1.096 3.239-3.24zm-20.064-10.228c0-3.739 3.043-6.782 6.782-6.782s6.782 3.042 6.782 6.782-3.043 6.782-6.782 6.782-6.782-3.043-6.782-6.782zm2.01-1.764c1.984-4.599 8.664-4.066 9.922.749-2.534-2.974-6.993-3.294-9.922-.749z"/></svg></button>
+			
+			
+			<table id="dataTable">
 			  <tr>
 				<th></th>
 				<th>Name</th>
@@ -98,6 +78,7 @@
 						<td>
 							<span style="font-size:18px; font-weight: bold;"><?php echo $rows['name']?></span></br>
 							<p><?php echo $rows['description']?></p>
+							<b>Downloaded:</b> <?php echo $rows['counter']?> Times
 						</td>
 				<?php
 						$ambid = $rows['uploaderID'];
@@ -110,15 +91,15 @@
 						<td style="font-weight:bold; text-align:center;color:red;">Deleted User</td>
 							<?php
 						}
-				?>		<td><?php echo date("Y-m-d \ TH:i:s\Z", $rows['time']); ?></td>
+				?>		<td><?php echo date("Y-m-d", $rows['time']); ?></td>
 						<td>
 						<?php if($rows['filetype'] == "pdf"){ ?>
-							<a class="button button2" href="uploads/<?php echo $rows['filename']; ?>" download>Download</a>
+							<a class="button button2" href="views/file.php?content_id=<?php echo $rows['id']; ?>" download>Download</a>
 						<?php
 						}
 						if($rows['filetype'] == "video"){ ?>
-							<a class="button button2" href="uploads/<?php echo $rows['filename']; ?>" download>Download</a>
-							<a class="button button2" href="javascript:void(0)" onclick="aurnaIframe('preview.php?content_id=<?php echo $rows['id']; ?>')">View</a>
+							<a class="button button2" href="views/file.php?content_id=<?php echo $rows['id']; ?>" download>Download</a>
+							<a class="button button2" href="javascript:void(0)" onclick="aurnaIframe('views/preview.php?content_id=<?php echo $rows['id']; ?>')">View</a>
 						<?php } ?>
 						</td>
 					</tr>
@@ -132,5 +113,3 @@
 
     </body>
 </html>
-
-<?php 	}	else { echo "<script>window.open('login.php','_self')</script>"; } ?>
