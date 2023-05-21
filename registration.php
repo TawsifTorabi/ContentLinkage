@@ -1,3 +1,92 @@
+
+        <!-- recieved data by post method from same php file-->
+        <?php
+
+			include('controller/input_filter.php');
+			
+			
+            $usernameErr = $emailErr = $passwordErr =$universityNameErr = "";
+            $username = $email = $password = $universityName = "";
+            $successfulInsert=false;
+
+            //checking empty,invalid inputs
+
+            if($_SERVER["REQUEST_METHOD"]=="POST"){
+                if(!empty($_POST["username"])){
+                    $username = input_filter($_POST['username']);  
+                    //pattern check 
+                            
+                }
+                else{
+                    $usernameErr = "Username missing";
+                }
+                if(!empty($_POST["email"])){
+                    $email = input_filter($_POST['email']);
+                    //pattern check 
+                    //useflag
+                }
+                else{
+                    $emailErr = "Email Missing";
+                }
+                if(!empty($_POST["password"])){
+                    $password = input_filter($_POST['password']);
+                    //pattern check 
+                    //useflag
+                }
+                else{
+                    $passwordErr = "Password Missing";
+                }
+                if(!empty($_POST["universityname"])){
+                    $universityname = input_filter($_POST['universityname']);
+                    //pattern check 
+                    //useflag
+                }
+                else{
+                    $universityNameErr = "University Name Missing";
+                    //pattern check 
+                    //useflag
+                }
+
+            }
+
+                //after passing empty and valid input check
+
+                if(!empty($_POST["username"]) && !empty($_POST["email"]) && !empty($_POST["password"]) && !empty($_POST["universityname"])){
+
+                    //establishing connection
+                    include_once "controller/connect_db.php";
+
+
+                    $username = input_filter($_POST['username']);
+                    $email = input_filter($_POST['email']);
+                    $password = input_filter($_POST['password']);
+                    $universityname = input_filter($_POST['universityname']);
+                    
+                    //inserting values into database
+                    $sql = "INSERT INTO users (email,password,username,client_uni_name)
+                    VALUES ('$email ', '$password', '$username','$universityname')";
+
+                    if ($conn->query($sql) === TRUE) {
+                   
+                        //successfull Insert without handling duplicate data
+                        
+
+                        include('model/regsuccesspage.php');
+						$conn->close();
+						exit();
+                        
+                      
+                    } else {
+                    //echo "Error: " . $sql . "<br>" . $conn->error;
+                    echo "<br>Found duplicate data";
+                    $conn->close();
+                    }
+
+
+                }
+
+			?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -68,103 +157,6 @@
 		<link rel="stylesheet" type="text/css" href="css/Clientstyle.css"/>
     </head>
     <body style="color: white">
-
-        <!-- recieved data by post method from same php file-->
-        <?php
-
-            $usernameErr = $emailErr = $passwordErr =$universityNameErr = "";
-            $username = $email = $password = $universityName = "";
-            $successfulInsert=false;
-
-            //checking empty,invalid inputs
-
-            if($_SERVER["REQUEST_METHOD"]=="POST"){
-                if(!empty($_POST["username"])){
-                    $username = input_filter($_POST['username']);  
-                    //pattern check 
-                            
-                }
-                else{
-                    $usernameErr = "Username missing";
-                }
-                if(!empty($_POST["email"])){
-                    $email = input_filter($_POST['email']);
-                    //pattern check 
-                    //useflag
-                }
-                else{
-                    $emailErr = "Email Missing";
-                }
-                if(!empty($_POST["password"])){
-                    $password = input_filter($_POST['password']);
-                    //pattern check 
-                    //useflag
-                }
-                else{
-                    $passwordErr = "Password Missing";
-                }
-                if(!empty($_POST["universityname"])){
-                    $universityname = input_filter($_POST['universityname']);
-                    //pattern check 
-                    //useflag
-                }
-                else{
-                    $universityNameErr = "University Name Missing";
-                    //pattern check 
-                    //useflag
-                }
-
-            }
-
-                //after passing empty and valid input check
-
-                if(!empty($_POST["username"]) && !empty($_POST["email"]) && !empty($_POST["password"]) && !empty($_POST["universityname"])){
-
-                    //establishing connection
-                    include_once "connect_db.php";
-
-
-                    $username = input_filter($_POST['username']);
-                    $email = input_filter($_POST['email']);
-                    $password = input_filter($_POST['password']);
-                    $universityname = input_filter($_POST['universityname']);
-                    
-                    //inserting values into database
-                    $sql = "INSERT INTO users (email,password,username,client_uni_name)
-                    VALUES ('$email ', '$password', '$username','$universityname')";
-
-                    if ($conn->query($sql) === TRUE) {
-                   
-                        //successfull Insert without handling duplicate data
-                        
-                        
-                        ?>
-                        <!-- php off then write other language then again php on -->
-                        
-                        <!-- going to login page-->
-                       
-                        <script>window.location.assign('regsuccesspage.php')</script>
-
-                        <?php
-                      
-                    } else {
-                    //echo "Error: " . $sql . "<br>" . $conn->error;
-                    echo "<br>Found duplicate data";
-                    }
-
-                    $conn->close();
-
-                }
-
-            //input filtering function
-            function input_filter($data) {
-                $data = trim($data);
-                $data = stripslashes($data);
-                $data = htmlspecialchars($data);
-                return $data;
-              }
-
-        ?>
 		</br>
 
         <h1 class="align" style="font-size: 40px;">CONTENT LINKAGE!</h1>      
